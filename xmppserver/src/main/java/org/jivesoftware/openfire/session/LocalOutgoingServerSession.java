@@ -53,6 +53,7 @@ import org.xmpp.packet.Message;
 import org.xmpp.packet.Packet;
 import org.xmpp.packet.PacketError;
 import org.xmpp.packet.Presence;
+import org.jivesoftware.openfire.event.ServerSessionEventDispatcher;
 
 /**
  * Server-to-server communication is done using two TCP connections between the servers. One
@@ -136,6 +137,8 @@ public class LocalOutgoingServerSession extends LocalServerSession implements Ou
             {
                 // Do nothing since the domain has already been authenticated.
                 log.debug( "Authentication successful (domain was already authenticated in the pre-existing session)." );
+                // After the session has been created, inform all listeners as well.
+                ServerSessionEventDispatcher.dispatchEvent(session, ServerSessionEventDispatcher.EventType.session_created);
                 return true;
             }
             if (session != null && !session.isUsingServerDialback() )
@@ -212,6 +215,8 @@ public class LocalOutgoingServerSession extends LocalServerSession implements Ou
                     session.addOutgoingDomainPair(localDomain, remoteDomain);
                     sessionManager.outgoingServerSessionCreated((LocalOutgoingServerSession) session);
                     log.debug( "Authentication successful." );
+                    // After the session has been created, inform all listeners as well.
+                    ServerSessionEventDispatcher.dispatchEvent(session, ServerSessionEventDispatcher.EventType.session_created);
                     return true;
                 } else {
                     log.warn( "Unable to authenticate: Fail to create new session." );

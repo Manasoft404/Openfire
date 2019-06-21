@@ -55,6 +55,8 @@ public class SoftwareServerVersionManager extends BasicModule implements ServerS
             versionRequest.setTo(session.getAddress());
             versionRequest.setFrom(session.getServerName());
             versionRequest.setChildElement("query", "jabber:iq:version");
+            Log.info("SERVERVERSIONM Q{}",versionRequest.toString());
+            Log.info("SERVERVERSIONM SESSION S{}",session.toString());
             session.process(versionRequest);
         } catch (Exception e) {
             Log.error("Exception while trying to query a server for its software version.", e);;

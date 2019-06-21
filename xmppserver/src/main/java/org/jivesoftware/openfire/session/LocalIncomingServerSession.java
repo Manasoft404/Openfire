@@ -43,6 +43,7 @@ import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 import org.xmpp.packet.JID;
 import org.xmpp.packet.Packet;
+import org.jivesoftware.openfire.event.ServerSessionEventDispatcher;
 
 /**
  * Server-to-server communication is done using two TCP connections between the servers. One
@@ -200,6 +201,8 @@ public class LocalIncomingServerSession extends LocalServerSession implements In
 
             // Set the domain or subdomain of the local server targeted by the remote server
             session.setLocalDomain(serverName);
+            // After the session has been created, inform all listeners as well.
+            ServerSessionEventDispatcher.dispatchEvent(session, ServerSessionEventDispatcher.EventType.session_created);
             return session;
         }
         catch (Exception e) {
