@@ -270,6 +270,21 @@ public abstract class SocketReader implements Runnable {
             closeNeverSecuredConnection();
             return;
         }
+        if (packet != null && packet.getType()== IQ.Type.result) {
+            Element query = packet.getChildElement();
+            if (query != null && "jabber:iq:version".equals(query.getNamespaceURI())) {
+                try {
+                    List<Element> elements =  query.elements();
+                    if (elements.size() >0){
+                        for (Element element : elements){
+                            session.setSoftwareVersionData(element.getName(), element.getStringValue());
+                        }
+                    }    
+                } catch (Exception e) {
+                    Log.error(e.getMessage(), e);
+                }  
+            }
+        }
         router.route(packet);
         session.incrementClientPacketCount();
     }
@@ -367,22 +382,6 @@ public abstract class SocketReader implements Runnable {
         Element query = doc.element("query");
         if (query != null && "jabber:iq:roster".equals(query.getNamespaceURI())) {
             return new Roster(doc);
-        }else if (query != null && "jabber:iq:version".equals(query.getNamespaceURI())) {
-            IQ iq = new IQ(doc);
-            Log.info("SOCKETREADER {}",iq.toString());
-            if (iq.getType().equals(IQ.Type.result) && !iq.getFrom().toString().contains("@")){
-                try {
-                    List<Element> elements =  query.elements();
-                    if (elements.size() >0){
-                        for (Element element : elements){
-                            session.setSoftwareVersionData(element.getName(), element.getStringValue());
-                        }
-                    }    
-                } catch (Exception e) {
-                    Log.error(e.getMessage(), e);
-                }  
-            }
-            return iq;
         }
         else {
             return new IQ(doc);
